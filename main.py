@@ -1,7 +1,7 @@
 import tkinter.filedialog, os,sys
 
 from models.TerminalClass import Terminal
-from models import ReadCSV,FileDIalog
+from models import ReadCSV,FileDIalog,CountTime
 import datetime
 import tkinter.messagebox as messagebox
 
@@ -45,11 +45,20 @@ for yl in ylog_list:
 if isErrors:
     sys.exit()
 
-start_Date = datetime.date(log_date_min.year,log_date_min.month,log_date_min.day)
-End_Date = datetime.date(log_date_max.year,log_date_max.month,log_date_max.day)
-print(f"min:{start_Date} max:{End_Date}")
 
-while start_Date < End_Date:
-    start_Date = start_Date + datetime.timedelta(days=1)
-    print(f"min:{start_Date} max:{End_Date}")
+for key,val in terminal_dic.items():
+    timeTable = CountTime.CountDic(key)
+    isLogin = False
+    if len(val) > 0:
+        if val[0][1] == 'Y1000':
+            isLogin = True
+        for h in range(0,val[0][0].hour):
+            if isLogin:
+                timeTable[h] += 1
+        for v in val:
+            if v[1] == 'Y1000':
+                isLogin = True
+                timeTable[v[0].hour] += 1
+            pass
+
 
