@@ -1,10 +1,12 @@
-print("起動中です...")
-
 import sys,datetime
 import numpy as np
 import tkinter.messagebox as messagebox
 from models import ReadCSV,FileDIalog,CountTime
 from models.YCodeBranch import branchYCode
+
+print("起動中です...")
+print("ファイル選択ダイアログでファイルを選択してください...（瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)")
+
 
 malutiLogFile = True
 
@@ -12,6 +14,7 @@ terminal_file_name = FileDIalog.OpenFileDialog("瞬快の端末一覧を選択(�
 if terminal_file_name == '':
     sys.exit()
 
+print("ファイル選択ダイアログでファイルを選択してください...（クエリ(Y全て)_yyyymmdd-mmdd)")
 ylog_file_name = FileDIalog.OpenFileDialog("Yログファイルを選択(クエリ(Y全て)_yyyymmdd-mmdd)",malutiLogFile)
 if ylog_file_name == '':
     sys.exit()
