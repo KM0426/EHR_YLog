@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+import tkinter.filedialog
 
 def OpenFileDialog(label,is_multi):
     fTyp = [("", "*")]
