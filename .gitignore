@@ -3,3 +3,4 @@ build/*
 models/__pycache__/*
 venv/*
 outnp.csv
+dist/outnp.csv
