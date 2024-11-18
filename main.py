@@ -1,13 +1,10 @@
-import tkinter.filedialog, os,sys
+print("起動中です...")
 
-from models.TerminalClass import Terminal
-from models import ReadCSV,FileDIalog,CountTime
-import datetime
-import tkinter.messagebox as messagebox
-from models.YCodeBranch import branchYCode
-import pandas as pd
-import csv
+import sys,datetime
 import numpy as np
+import tkinter.messagebox as messagebox
+from models import ReadCSV,FileDIalog,CountTime
+from models.YCodeBranch import branchYCode
 
 malutiLogFile = True
 
@@ -19,6 +16,7 @@ ylog_file_name = FileDIalog.OpenFileDialog("Yログファイルを選択(クエ�
 if ylog_file_name == '':
     sys.exit()
 
+print("ファイルを読み込んでいます...")
 terminals_list = ReadCSV.ReadCSV(terminal_file_name)
 ylog_list = ReadCSV.ReadCSV(ylog_file_name)
 
@@ -32,8 +30,8 @@ for tm in terminals_list:
 
 isErrors = False
 ErrorMessage = ""
-log_date_min = datetime.datetime(year=datetime.MAXYEAR, month=12, day=30, hour=23, minute=59, second=59)
-log_date_max = datetime.datetime(year=datetime.MINYEAR, month=1, day=1, hour=0, minute=0, second=0)
+
+print("データをモデル化しています...")
 for yl in ylog_list:
     if yl[7] not in terminal_dic:
         terminal_dic[yl[7]] = []
@@ -42,6 +40,7 @@ for yl in ylog_list:
     try:
         log_datetime = datetime.datetime.strptime(yl[0], '%Y/%m/%d %H:%M')
     except Exception as e:
+        print("Error",f"{e.__class__.__name__}: {e}")
         messagebox.showerror("Error",f"{e.__class__.__name__}: {e}")
         isErrors = True
         break
@@ -55,21 +54,25 @@ header = ['端末番号','名称']
 for h in range(0,24):
     header.append(str(h)+"時")
 CalcCounts.append(header)
-for key,val in terminal_dic.items():
 
-    base_countTime = CountTime.CountDic(key)
-    base_countTime.timeTable[1] = terminal_place_dic[key]
+print("データ解析・集計しています...")
+for key,val in terminal_dic.items():
     list_countTime = []
     isLogin = False
+
     if len(val) > 0:
+        base_countTime = CountTime.CountDic(key)
+        base_countTime.timeTable[1] = terminal_place_dic[key]
         tmpStartHour = 0
         if val[0][1] == 'OUT' or val[0][1] == 'ScreenON':
             isLogin = True
 
         currentDateTime = datetime.datetime(val[0][0].year,val[0][0].month,val[0][0].day,0,0,0)
-
+        countTime = CountTime.CountDic(key)
         for v in val:
-            countTime = CountTime.CountDic(key)
+            if str(currentDateTime.year + currentDateTime.month + currentDateTime.day) != str(v[0].year + v[0].month + v[0].day):
+                list_countTime.append(countTime.timeTable)
+                countTime = CountTime.CountDic(key)
             countTime.timeTable[1] = terminal_place_dic[key]
             if isLogin:
                 while currentDateTime < v[0]:
@@ -89,11 +92,16 @@ for key,val in terminal_dic.items():
             else:
                 pass
             currentDateTime = v[0]
-            list_countTime.append(countTime.timeTable)
+        list_countTime.append(countTime.timeTable)    
         for i in range(0,len(list_countTime)):
             for j in range(2,len(list_countTime[0])-2):
                 base_countTime.timeTable[j] += list_countTime[i][j]
-    CalcCounts.append(base_countTime.timeTable)
+
+        CalcCounts.append(base_countTime.timeTable)
     pass
 
-np.savetxt("outnp.csv", CalcCounts, delimiter=",", fmt='%s')
+print("ファイルに書き出しています...")
+with open("outnp.csv", "w", encoding="utf-8-sig", newline="") as f:
+    np.savetxt(f, CalcCounts, delimiter=",", fmt='%s')
+print("完了しました！")
+input("エンターを入力するか、コンソールを閉じて終了してください")
