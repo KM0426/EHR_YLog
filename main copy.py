@@ -4,25 +4,24 @@ import tkinter.messagebox as messagebox
 from models import ReadCSV,FileDIalog,CountTime
 from models.YCodeBranch import branchYCode
 
+def fileSelect(label):
+    print("ファイル選択ダイアログでファイルを選択してください...（瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)")
+    return FileDIalog.OpenFileDialog("瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)",False)
 
-def fileSelect(prints,label,ismulti):
-    print(prints)
-    return FileDIalog.OpenFileDialog(label,ismulti)
 
-def readSCV(path):
-    return ReadCSV.ReadCSV(path)
+malutiLogFile = True
 
-terminal_file_name = fileSelect("ファイル選択ダイアログでファイルを選択してください...（瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)","瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)",True)
+terminal_file_name = fileSelect("ファイル選択ダイアログでファイルを選択してください...（瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)")
 if terminal_file_name == '':
     sys.exit()
 
-ylog_file_name = fileSelect("ファイル選択ダイアログでファイルを選択してください...（クエリ(Y全て)_yyyymmdd-mmdd)","クエリ(Y全て)_yyyymmdd-mmdd",False)
+ylog_file_name = fileSelect("ファイル選択ダイアログでファイルを選択してください...（クエリ(Y全て)_yyyymmdd-mmdd)")
 if ylog_file_name == '':
     sys.exit()
 
 print("ファイルを読み込んでいます...")
-terminals_list = readSCV(terminal_file_name)
-ylog_list = readSCV(ylog_file_name)
+terminals_list = ReadCSV.ReadCSV(terminal_file_name)
+ylog_list = ReadCSV.ReadCSV(ylog_file_name)
 
 terminal_place_dic = {}
 for tm in terminals_list:
