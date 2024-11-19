@@ -59,16 +59,25 @@ def process_logs(ylog_list, terminal_dic, terminal_place_dic):
     if -1 in {dt_indx,terminal_indx,y_indx}:
         messagebox.showwarning("読み込めません","ファイルの1行目に「OPE_TIME,WS_ID,FCD」が含まれているか確認してください")
         sys.exit()
-
+    min_date = datetime.datetime.max
+    max_date = datetime.datetime.min
     for log in ylog_list:
         terminal_id = log[terminal_indx]
+        if log[dt_indx] == 'OPE_TIME':
+            continue
         log_datetime = parse_log_datetime(log[dt_indx])
+
+        if log_datetime < min_date:
+            min_date = log_datetime
+        if log_datetime > max_date:
+            max_date = log_datetime
 
         if terminal_id not in terminal_dic:
             terminal_dic[terminal_id] = []
             terminal_place_dic[terminal_id] = "空白"
 
         terminal_dic[terminal_id].append([log_datetime, branchYCode(log[y_indx])])
+    return min_date,max_date
 
 def analyze_data(terminal_dic, terminal_place_dic):
     """データを解析して集計結果を作成"""
@@ -125,10 +134,10 @@ def main():
     terminal_file_name = file_select(
         "ファイル選択ダイアログでファイルを選択してください...（瞬快の端末一覧を選択）",
         "瞬快の端末一覧を選択(アクセスログ【yyyymmdd】)",
-        True,
+        False,
         get_user_download_folder(),
         "端末一覧",
-        "*.csv;*.xlsx;*.xls"
+        "*.xlsx;*.xls"
     )
     if not terminal_file_name:
         sys.exit()
@@ -136,7 +145,7 @@ def main():
     ylog_file_name = file_select(
         "ファイル選択ダイアログでファイルを選択してください...（クエリ(Y全て)_yyyymmdd-mmdd）",
         "クエリ(Y全て)_yyyymmdd-mmdd",
-        False,
+        True,
         initDir,
         "ログ一覧",
         "*.csv"
@@ -152,7 +161,7 @@ def main():
     terminal_place_dic, terminal_dic = create_terminal_dictionaries(terminals_list)
 
     try:
-        process_logs(ylog_list, terminal_dic, terminal_place_dic)
+        min_date,max_date =process_logs(ylog_list, terminal_dic, terminal_place_dic)
     except Exception as inst:
         print(type(inst))    # the exception type
         print(inst.args)     # arguments stored in .args
@@ -161,10 +170,10 @@ def main():
 
     print("データを解析・集計中...")
     calc_counts = analyze_data(terminal_dic, terminal_place_dic)
-
+    calc_counts.insert(0, ["期間",min_date.strftime('%Y/%m/%d'),"-",max_date.strftime('%Y/%m/%d'),"","","","","","","","","","","","","","","","","","","","","",""])
     print("結果をファイルに書き出しています...")
     tmstamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    save_to_csv(f"{initDir}\\{tmstamp}_YlogCal.csv", calc_counts)
+    save_to_csv(f"{initDir}/{tmstamp}_YlogCal.csv", calc_counts)
 
     print("完了しました！")
     messagebox.showinfo("Success",f"出力しました！\n{f"{initDir}\\{tmstamp}_YlogCal.csv"}")
