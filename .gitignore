@@ -4,3 +4,5 @@ models/__pycache__/*
 venv/*
 outnp.csv
 dist/outnp.csv
+dist/アクセスログ【20241113】.xlsx
+dist/クエリ1(Y全て)_20240901-20240930.csv
