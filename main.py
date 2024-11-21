@@ -39,7 +39,7 @@ def create_terminal_dictionaries(input_terminals_list):
         messagebox.showwarning("読み込めません","ファイルの1行目に「端末番号,設置場所」が含まれているか確認してください")
         sys.exit()
 
-    terminal_place_dic = {terminal[terminal_id_indx]: terminal[place_indx] for terminal in terminals_list}
+    terminal_place_dic = {terminal[terminal_id_indx]: terminal[place_indx].replace('\r\n', '_').replace('\n', '_').replace('\r', '_') for terminal in terminals_list}
     terminal_dic = {terminal[terminal_id_indx]: [] for terminal in terminals_list}
     return terminal_place_dic, terminal_dic
 
@@ -84,6 +84,8 @@ def analyze_data(terminal_dic, terminal_place_dic):
     calc_counts = [['端末番号', '名称'] + [f"{hour}時" for hour in range(24)]]
 
     for terminal_id, logs in terminal_dic.items():
+        if 'KHDT0190' == terminal_id:
+            pass
         if not logs:
             continue
 
